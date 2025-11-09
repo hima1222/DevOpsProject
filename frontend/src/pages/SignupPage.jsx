@@ -27,7 +27,14 @@ export default function Signup() {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/api/auth/signup", {
+      const rawApi = import.meta.env.VITE_API_URL;
+      // If env points to the docker service name (http://backend:5000) but
+      // the browser is not running inside that network (hostname !== 'backend'),
+      // prefer localhost so requests succeed in local dev.
+      const apiBase = (rawApi && rawApi.includes("backend") && typeof window !== "undefined" && window.location.hostname !== "backend")
+        ? "http://localhost:5000"
+        : (rawApi || "http://localhost:5000");
+      const res = await fetch(`${apiBase}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify( formData ),

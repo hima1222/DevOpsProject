@@ -9,8 +9,8 @@ services:
     container_name: backend_c
     command: npm run dev   # nodemon inside container
     volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./backend:/app
+      - /app/node_modules
     ports:
       - "5000:5000"
     environment:
@@ -27,16 +27,17 @@ services:
       dockerfile: Dockerfile
     image: cafelove-frontend
     container_name: frontend_c
-    command: npm run dev   # Vite dev server
+    command: npm run dev -- --host 0.0.0.0   # Vite dev server
     volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "5173:5173"
     depends_on:
       - backend
     environment:
       - NODE_ENV=development
+      - VITE_API_URL=http://localhost:5000
     networks:
       - app-network
 

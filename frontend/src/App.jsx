@@ -2,23 +2,17 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./pages/SignupPage.jsx";
 import Login from "./pages/LoginPage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
+import Home from "./pages/Home.jsx";
 import MainNavbar from "./components/MainNavbar.jsx";
 import "./App.css";
 
-function Dashboard() {
-  return (
-    <>
-      <MainNavbar />
-      <div className="dashboard">
-        <h1>Welcome to Cafe Love ☕</h1>
-      </div>
-    </>
-  );
+// Simple protected wrapper that reads token on each render
+function Protected({ children }) {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" replace />;
 }
 
 export default function App() {
-  const token = localStorage.getItem("token");
-
   return (
     <Routes>
       {/* Landing Page */}
@@ -28,11 +22,8 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
 
-      {/* Protected Dashboard */}
-      <Route
-        path="/dashboard"
-        element={token ? <Dashboard /> : <Navigate to="/login" />}
-      />
+      {/* Protected Home (user profile) */}
+      <Route path="/home" element={<Protected><Home /></Protected>} />
 
       {/* Default → Landing */}
       <Route path="*" element={<Navigate to="/" />} />

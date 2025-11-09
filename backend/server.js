@@ -15,9 +15,9 @@ app.use(cors());
 // Routes
 app.use("/api/auth", authRoutes);
 
-// Example protected route
+// Example protected route (generic message — don't expose user email/name)
 app.get("/api/dashboard", authMiddleware, (req, res) => {
-  res.json({ message: `Welcome ${req.user.email} to CafeLove Dashboard` });
+  res.json({ message: "Welcome to CafeLove Dashboard" });
 });
 
 app.get("/api/test", (req, res) => {
@@ -31,5 +31,6 @@ app.use((req, res, next) => {
 });
 
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, "0.0.0.0", () => console.log(`Server running on http://0.0.0.0:${PORT}`));
+

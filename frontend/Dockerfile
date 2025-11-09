@@ -14,6 +14,6 @@ COPY . .
 EXPOSE 5173
 
 # Start Vite in dev mode and listen on all interfaces
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host"]
 
 
