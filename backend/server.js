@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
+import menuRoutes from "./src/routes/menuRoutes.js";
 import { authMiddleware } from "./src/middleware/authMiddleware.js";
 
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(cors());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/menu", menuRoutes);
 
 // Example protected route (generic message — don't expose user email/name)
 app.get("/api/dashboard", authMiddleware, (req, res) => {

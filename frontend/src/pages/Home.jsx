@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import MainNavbar from "../components/MainNavbar.jsx";
 import heroImg from "../assets/signup-banner.jpg";
 import logoSvg from "../assets/logo_img.png";
-
+import coffee1 from "../assets/coffeeMenu/espresso.jpg";
+import coffee2 from "../assets/coffeeMenu/cappuccino.jpg";
+import coffee3 from "../assets/coffeeMenu/vanillaLatte.jpg";
 import "./Home.css";
 
 export default function Home() {
@@ -42,23 +44,23 @@ export default function Home() {
           <h2>Our Menu</h2>
           <div className="menu-grid">
             <article className="menu-item">
-              <img src={heroImg} alt="Espresso" />
+              <img src={coffee1} alt="Espresso" />
               <h3>Espresso</h3>
               <p>Rich and bold single-origin espresso.</p>
             </article>
             <article className="menu-item">
-              <img src={heroImg} alt="Cappuccino" />
+              <img src={coffee2} alt="Cappuccino" />
               <h3>Cappuccino</h3>
               <p>Creamy cappuccino with perfectly textured milk.</p>
             </article>
             <article className="menu-item">
-              <img src={heroImg} alt="Latte" />
+              <img src={coffee3} alt="Latte" />
               <h3>Vanilla Latte</h3>
               <p>Smooth latte with a hint of vanilla.</p>
             </article>
           </div>
           <div className="menu-actions">
-            <button className="view-more">View More</button>
+            <button className="view-more" onClick={() => navigate("/menu")}>View More</button>
           </div>
         </section>
 

@@ -44,12 +44,15 @@
 }
 
 .content {
-  max-width: 1000px;
+  max-width: 1800px;
   margin: 80px auto;
   padding: 0 20px;
 }
 
+
+
 .about, .menu, .contact {
+  margin-top: 10px;
   margin-bottom: 50px;
 }
 
@@ -96,7 +99,9 @@
 .view-more:hover { opacity: 0.95 }
 
 .contact {
-  margin-top: 20px;
+  margin: 20px; 
+  background-color: #F6E3BA;
+
 }
 
 .contact p { margin: 6px 0 }

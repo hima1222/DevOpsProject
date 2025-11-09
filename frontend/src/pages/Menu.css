@@ -1,0 +1,12 @@
+.menu-page { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; }
+.menu-hero{
+  padding: 48px 20px 28px;
+  text-align:center;
+  background: linear-gradient(180deg, rgba(107,62,38,0.08), rgba(255,255,255,0));
+}
+.menu-title{ font-size:44px; margin:0; color:#5a2f1f }
+.menu-title-reflect{ margin-top:6px; color: rgba(90,47,31,0.18); transform: scaleY(-1); filter: blur(1px); }
+.menu-content{ max-width:1100px; margin:28px auto; padding:0 18px }
+.menu-section{ margin-bottom:32px }
+.menu-section h2{ margin:0 0 12px 0; color:#5a2f1f }
+.menu-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:18px }

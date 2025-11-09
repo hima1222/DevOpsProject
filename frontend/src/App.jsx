@@ -3,6 +3,7 @@ import Signup from "./pages/SignupPage.jsx";
 import Login from "./pages/LoginPage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import Home from "./pages/Home.jsx";
+import Menu from "./pages/Menu.jsx";
 import MainNavbar from "./components/MainNavbar.jsx";
 import "./App.css";
 
@@ -22,8 +23,11 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
 
-      {/* Protected Home (user profile) */}
-      <Route path="/home" element={<Protected><Home /></Protected>} />
+  {/* Protected Home (user profile) */}
+  <Route path="/home" element={<Protected><Home /></Protected>} />
+
+  {/* Menu (public) */}
+  <Route path="/menu" element={<Menu />} />
 
       {/* Default → Landing */}
       <Route path="*" element={<Navigate to="/" />} />
