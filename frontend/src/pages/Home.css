@@ -44,7 +44,7 @@
 }
 
 .content {
-  max-width: 1800px;
+  max-width: 1200px;
   margin: 80px auto;
   padding: 0 20px;
 }
@@ -54,17 +54,22 @@
 .about, .menu, .contact {
   margin-top: 10px;
   margin-bottom: 50px;
+  text-align: center;
 }
 
 .about h2, .menu h2, .contact h2 {
   text-align: center;
 }
 
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  margin-top: 46px;
+.menu-category {
+  margin-bottom: 40px;
+}
+
+.menu-category h3 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #6b3e26;
 }
 
 .menu-item {
@@ -76,7 +81,7 @@
 }
 
 .menu-item img {
-  width: 100%;
+  width: auto;
   height: 140px;
   object-fit: cover;
   border-radius: 8px;
@@ -99,9 +104,41 @@
 .view-more:hover { opacity: 0.95 }
 
 .contact {
-  margin: 20px; 
-  background-color: #F6E3BA;
+  margin: 60px; 
+  background-color: #f0ede6;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 40px;
+}
 
+.contact h2 {
+  margin-bottom: 30px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contact-item a {
+  color: #6b3e26;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact-item a:hover {
+  text-decoration: underline;
 }
 
 .contact p { margin: 6px 0 }

@@ -33,6 +33,12 @@ export default function Menu() {
         setError(err.message || "Failed to load menu");
       })
       .finally(() => setLoading(false));
+
+    // Scroll to hash if present
+    if (window.location.hash) {
+      const element = document.getElementById(window.location.hash.substring(1));
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    }
   }, []);
 
   return (
@@ -47,7 +53,7 @@ export default function Menu() {
         {loading && <p>Loading menu…</p>}
         {error && <p className="error">{error}</p>}
 
-        <section className="menu-section">
+        <section className="menu-section" id="beverages">
           <h2>Beverages</h2>
           <div className="menu-grid">
             {(beverages.length ? beverages : [
@@ -58,7 +64,7 @@ export default function Menu() {
           </div>
         </section>
 
-        <section className="menu-section">
+        <section className="menu-section" id="sweets">
           <h2>Sweets</h2>
           <div className="menu-grid">
             {(sweets.length ? sweets : [

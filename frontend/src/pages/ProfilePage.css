@@ -1,0 +1,190 @@
+.profile-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #000000 25%, #2e1507 75%);
+  font-family: Inter, system-ui;
+}
+
+.profile-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.profile-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #fff;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.profile-info, .profile-orders {
+  background: rgba(255,255,255,0.95);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-info:hover, .profile-orders:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.profile-info h2, .profile-orders h2 {
+  margin-bottom: 20px;
+  color: #6b3e26;
+  font-size: 1.8em;
+  border-bottom: 3px solid #6b3e26;
+  padding-bottom: 10px;
+  position: relative;
+}
+
+.profile-info h2::after, .profile-orders h2::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(45deg, #6b3e26, #a0522d);
+}
+
+.profile-display p {
+  margin: 15px 0;
+  font-size: 18px;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.profile-display p strong {
+  min-width: 100px;
+  color: #6b3e26;
+}
+
+.profile-display button {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 1em;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+
+.profile-display button:hover {
+  background: linear-gradient(45deg, #0056b3, #004085);
+  transform: scale(1.05);
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  animation: formSlide 0.4s ease;
+}
+
+@keyframes formSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-form label {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #495057;
+  font-size: 1.1em;
+}
+
+.profile-form input {
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 2px solid #ced4da;
+  border-radius: 10px;
+  font-size: 1em;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-form input:focus {
+  outline: none;
+  border-color: #6b3e26;
+  box-shadow: 0 0 10px rgba(107, 62, 38, 0.3);
+}
+
+.profile-form button {
+  padding: 12px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.profile-form button:first-of-type {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+}
+
+.profile-form button:first-of-type:hover {
+  background: linear-gradient(45deg, #20c997, #17a2b8);
+  transform: scale(1.05);
+}
+
+.profile-form button:last-of-type {
+  background: linear-gradient(45deg, #6c757d, #5a6268);
+  color: white;
+  box-shadow: 0 4px 15px rgba(108,117,125,0.3);
+}
+
+.profile-form button:last-of-type:hover {
+  background: linear-gradient(45deg, #5a6268, #495057);
+  transform: scale(1.05);
+}
+
+.order-history {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-item {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.order-item p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.error {
+  color: #dc3545;
+  text-align: center;
+  margin: 20px 0;
+  font-weight: bold;
+  background: rgba(220,53,69,0.1);
+  padding: 10px;
+  border-radius: 10px;
+}
