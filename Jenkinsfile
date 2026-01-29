@@ -74,7 +74,13 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t cafelove:latest .'
+        sh 'docker build -t cafelove:latest ./backend'
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t cafelove:latest ./frontend'
       }
     }
 
