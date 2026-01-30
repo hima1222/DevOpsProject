@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   backend:
     build:
@@ -7,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: cafelove-backend
     container_name: backend_c
-    command: npm run dev   # nodemon inside container
+    command: npm run dev
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -15,7 +13,7 @@ services:
       - "5000:5000"
     environment:
       - NODE_ENV=development
-      - MONGO_URL=mongodb://mongo:27017/cafelove   # connection string
+      - MONGO_URL=mongodb://mongo:27017/cafelove
     depends_on:
       - mongo
     networks:
@@ -28,7 +26,7 @@ services:
       dockerfile: Dockerfile
     image: cafelove-frontend
     container_name: frontend_c
-    command: npm run dev -- --host 0.0.0.0   # Vite dev server
+    command: npm run dev -- --host 0.0.0.0
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -38,7 +36,7 @@ services:
       - backend
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:5000
+      - VITE_API_URL=http://backend:5000
     networks:
       - app-network
     init: true
@@ -60,4 +58,4 @@ networks:
 
 volumes:
   mongo-data:
-  node_modules:
+  mongo-backup:
