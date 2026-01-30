@@ -11,7 +11,6 @@ import MainNavbar from "./components/MainNavbar.jsx";
 import { CartProvider } from "./contexts/CartContext.jsx";
 import "./App.css";
 
-// Simple protected wrapper that reads token on each render
 function Protected({ children }) {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);

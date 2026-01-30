@@ -2,41 +2,66 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_CRED = 'github-token'
-        IMAGE_FRONT = 'cafelove-frontend'
-        IMAGE_BACK = 'cafelove-backend'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        DOCKERHUB_USER = "${DOCKERHUB_CREDENTIALS_USR}"
     }
 
     stages {
-        stage('Checkout Repo') {
+
+        stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/hima1222/DevOpsProject.git',
-                    credentialsId: "${GITHUB_CRED}"
+                    credentialsId: 'github-creds',
+                    url: 'https://github.com/hima1222/DevOpsProject.git'
             }
         }
 
-        stage('Build Frontend Docker Image') {
+        stage('Backend Tests') {
             steps {
-                sh 'docker build -t ${IMAGE_FRONT} ./frontend'
+                dir('backend') {
+                    sh 'npm install'
+                    sh 'npm test'
+                }
             }
         }
 
-        stage('Build Backend Docker Image') {
+        stage('Frontend Tests') {
             steps {
-                sh 'docker build -t ${IMAGE_BACK} ./backend'
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm test'
+                }
             }
         }
 
-        stage('Run Containers') {
+        stage('Build Docker Images') {
+            steps {
+                sh 'docker compose build'
+            }
+        }
+
+        stage('Docker Login') {
             steps {
                 sh '''
-                docker rm -f cafelove-frontend || true
-                docker rm -f cafelove-backend || true
-                docker run -d -p 3000:3000 --name cafelove-frontend ${IMAGE_FRONT}
-                docker run -d -p 5000:5000 --name cafelove-backend ${IMAGE_BACK}
+                  echo "$DOCKERHUB_CREDENTIALS_PSW" | \
+                  docker login -u "$DOCKERHUB_USER" --password-stdin
                 '''
             }
+        }
+
+        stage('Push Images to Docker Hub') {
+            steps {
+                sh 'docker compose push'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ CI Pipeline completed successfully'
+        }
+        failure {
+            echo '❌ CI Pipeline failed'
         }
     }
 }
