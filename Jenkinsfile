@@ -1,13 +1,10 @@
 pipeline {
-    agent any
-
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        DOCKERHUB_USER = "${DOCKERHUB_CREDENTIALS_USR}"
-    }
+    agent none
 
     stages {
-        stage('Checkout Code') {
+
+        stage('Checkout') {
+            agent any
             steps {
                 git branch: 'main',
                     credentialsId: 'github-creds',
@@ -16,6 +13,11 @@ pipeline {
         }
 
         stage('Backend Tests') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                }
+            }
             steps {
                 dir('backend') {
                     sh 'npm install'
@@ -25,6 +27,11 @@ pipeline {
         }
 
         stage('Frontend Tests') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                }
+            }
             steps {
                 dir('frontend') {
                     sh 'npm install'
@@ -34,12 +41,14 @@ pipeline {
         }
 
         stage('Build Docker Images') {
+            agent any
             steps {
                 sh 'docker compose build'
             }
         }
 
         stage('Docker Login') {
+            agent any
             steps {
                 sh '''
                   echo "$DOCKERHUB_CREDENTIALS_PSW" | \
@@ -48,19 +57,11 @@ pipeline {
             }
         }
 
-        stage('Push Images to Docker Hub') {
+        stage('Push Images') {
+            agent any
             steps {
                 sh 'docker compose push'
             }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ CI Pipeline completed successfully'
-        }
-        failure {
-            echo '❌ CI Pipeline failed'
         }
     }
 }
