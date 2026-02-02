@@ -55,12 +55,14 @@ pipeline {
         stage('Docker Login') {
             agent any
             steps {
-                sh '''
-                  echo "$DOCKERHUB_CREDENTIALS_PSW" | \
-                  docker login -u "$DOCKERHUB_USER" --password-stdin
-                '''
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
+                                                usernameVariable: 'DOCKER_USER', 
+                                                passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
             }
         }
+
 
         stage('Push Images') {
             agent any
@@ -68,7 +70,8 @@ pipeline {
                 DOCKER_API_VERSION = "1.44"
             }
             steps {
-                sh 'docker compose push'
+                sh 'docker push cafelove-backend:latest'
+                sh 'docker push cafelove-frontend:latest'
             }
         }
 
