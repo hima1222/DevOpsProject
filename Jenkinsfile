@@ -16,13 +16,12 @@ pipeline {
             agent {
                 docker {
                     image 'node:20-alpine'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    //args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
                 dir('backend') {
-                    sh 'npm install'
-                    sh 'npm test'
+                    sh 'docker run --rm -v $PWD:/app -w /app node:20-alpine sh -c "npm install && npm test"'
                 }
             }
         }
@@ -36,8 +35,7 @@ pipeline {
             }
             steps {
                 dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm test'
+                    sh 'docker run --rm -v $PWD:/app -w /app node:20-alpine sh -c "npm install && npm test"'
                 }
             }
         }
