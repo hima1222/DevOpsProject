@@ -48,7 +48,7 @@ pipeline {
                 DOCKER_API_VERSION = "1.44"
             }
             steps {
-                sh 'docker compose build'
+                sh 'docker-compose build'
             }
         }
 
