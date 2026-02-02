@@ -44,7 +44,6 @@ pipeline {
             agent any
             steps {
                 sh 'docker-compose build'
-                sh 'docker-compose push'
 
             }
         }
@@ -62,7 +61,7 @@ pipeline {
         stage('Push Images') {
             agent any
             steps {
-                sh 'docker compose push'
+                sh 'docker-compose push'
             }
         }
     }
