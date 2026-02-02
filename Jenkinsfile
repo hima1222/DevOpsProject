@@ -3,15 +3,15 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            agent any
-            steps {
-                git branch: 'main',
-                    credentialsId: 'github-creds',
-                    url: 'https://github.com/hima1222/DevOpsProject.git'
+        // stage('Checkout') {
+        //     agent any
+        //     steps {
+        //         git branch: 'main',
+        //             credentialsId: 'github-creds',
+        //             url: 'https://github.com/hima1222/DevOpsProject.git'
                 
-            }
-        }
+        //     }
+        // }
 
         stage('Backend Tests') {
             agent {
