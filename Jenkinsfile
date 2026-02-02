@@ -16,6 +16,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:20-alpine'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
@@ -30,6 +31,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:20-alpine'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
@@ -42,9 +44,11 @@ pipeline {
 
         stage('Build Docker Images') {
             agent any
+            environment {
+                DOCKER_API_VERSION = "1.44"
+            }
             steps {
-                sh 'docker-compose build'
-
+                sh 'docker compose build'
             }
         }
 
@@ -60,9 +64,13 @@ pipeline {
 
         stage('Push Images') {
             agent any
+            environment {
+                DOCKER_API_VERSION = "1.44"
+            }
             steps {
-                sh 'docker-compose push'
+                sh 'docker compose push'
             }
         }
+
     }
 }
