@@ -3,12 +3,19 @@ pipeline {
 
     stages {
 
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
         stage('Checkout') {
             agent any
             steps {
-                git branch: 'main',
-                    credentialsId: 'github-creds',
-                    url: 'https://github.com/hima1222/DevOpsProject.git'
+                // git branch: 'main',
+                //     credentialsId: 'github-creds',
+                //     url: 'https://github.com/hima1222/DevOpsProject.git'
+                checkout scm
             }
         }
 
