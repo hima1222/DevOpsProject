@@ -1,4 +1,5 @@
 def retryPush(String image, int maxAttempts = 3) {
+    int[] waitTimes = [1, 2, 4]  // exponential backoff: 1s, 2s, 4s
     for (int i = 1; i <= maxAttempts; i++) {
         try {
             sh "docker push ${image}"
@@ -7,7 +8,7 @@ def retryPush(String image, int maxAttempts = 3) {
             if (i == maxAttempts) {
                 throw e
             }
-            int waitTime = Math.pow(2, i - 1) as int
+            int waitTime = waitTimes[i - 1]
             echo "Push attempt ${i} failed. Retrying in ${waitTime}s..."
             sh "sleep ${waitTime}"
         }
