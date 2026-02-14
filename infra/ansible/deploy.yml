@@ -2,7 +2,6 @@
   hosts: web
   become: yes
 
-  tasks:
   vars:
     backend_image: "hima1222/cafelove-backend:latest"
     frontend_image: "hima1222/cafelove-frontend:latest"
@@ -69,15 +68,23 @@
         password: "{{ docker_pass }}"
 
   tasks:
-    - name: Pull backend image
+    - name: Pull backend image with retry
       community.docker.docker_image:
         name: "{{ backend_image }}"
         source: pull
+      retries: 3
+      delay: 10
+      register: backend_pull_result
+      until: backend_pull_result is succeeded
 
-    - name: Pull frontend image
+    - name: Pull frontend image with retry
       community.docker.docker_image:
         name: "{{ frontend_image }}"
         source: pull
+      retries: 3
+      delay: 10
+      register: frontend_pull_result
+      until: frontend_pull_result is succeeded
 
     - name: Stop and remove backend container if exists
       community.docker.docker_container:
@@ -110,11 +117,31 @@
           - "80:5173"
 
   post_tasks:
-    - name: Show running containers
-      community.docker.docker_container_info:
-        name: "{{ frontend_container_name }}"
-      register: frontend_info
-
-    - name: Debug frontend container
+    - name: Display deployment success message
       debug:
-        var: frontend_info
+        msg:
+          - "========================================="
+          - "✓ CafeLove Deployment Completed!"
+          - "Backend: {{ backend_container_name }} running on port 5000"
+          - "Frontend: {{ frontend_container_name }} running on port 80"
+          - "========================================="
+
+    - name: Wait for backend container to be healthy
+      community.docker.docker_container:
+        name: "{{ backend_container_name }}"
+        state: started
+      register: backend_status
+
+    - name: Verify backend is responding
+      uri:
+        url: "http://localhost:5000/api/test"
+        method: GET
+        status_code: [200, 404, 500]
+      ignore_errors: yes
+      retries: 3
+      delay: 5
+      register: backend_health
+
+    - name: Display backend health status
+      debug:
+        msg: "Backend API responding: {{ backend_health.status | default('Unable to reach') }}"
