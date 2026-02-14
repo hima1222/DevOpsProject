@@ -18,6 +18,13 @@ def retryPush(String image, int maxAttempts = 3) {
 pipeline {
     agent any
 
+    triggers {
+        // Auto-trigger on GitHub push via webhook
+        githubPush()
+        // Fallback: Poll SCM every 5 minutes if webhook fails
+        pollSCM('H/5 * * * *')
+    }
+
     environment {
         DOCKER_CLIENT_TIMEOUT = '600'
         COMPOSE_HTTP_TIMEOUT = '600'
@@ -127,7 +134,9 @@ pipeline {
         stage('Deploy with Ansible') {
             agent any
             steps {
-                echo '=== Starting automated deployment to EC2 ==='
+                echo '========================================='
+                echo '🚀 Deploying to EC2 via Ansible'
+                echo '========================================='
                 withCredentials([
                     usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
                     file(credentialsId: 'ec2-ssh-key', variable: 'EC2_SSH_KEY')
@@ -135,13 +144,16 @@ pipeline {
                     sh '''
                     chmod 600 "$EC2_SSH_KEY"
                     echo "[INFO] Running Ansible playbook to deploy CafeLove to EC2..."
-                    ansible-playbook -i infra/ansible/inventory.ini infra/ansible/deploy.yml \
+                    ansible-playbook \
+                      -i infra/ansible/inventory.ini \
+                      infra/ansible/deploy.yml \
                       --private-key "$EC2_SSH_KEY" \
-                      -e "docker_user=$DOCKER_USER docker_pass=$DOCKER_PASS" \
-                      -v
+                      -e "docker_user=$DOCKER_USER" \
+                      -e "docker_pass=$DOCKER_PASS" \
+                      -vv
                     '''
                 }
-                echo '✓ Ansible deployment completed'
+                echo '✅ Ansible deployment completed successfully'
             }
         }
 

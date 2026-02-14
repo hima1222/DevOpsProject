@@ -3,10 +3,11 @@
   become: yes
 
   vars:
+    app_dir: /opt/cafelove
     backend_image: "hima1222/cafelove-backend:latest"
     frontend_image: "hima1222/cafelove-frontend:latest"
-    backend_container_name: cafelove-backend
-    frontend_container_name: cafelove-frontend
+    docker_registry_user: "{{ docker_user }}"
+    docker_registry_pass: "{{ docker_pass }}"
 
   pre_tasks:
     - name: Ensure python is installed for docker modules (RedHat)
@@ -62,86 +63,110 @@
         state: started
         enabled: yes
 
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/latest/download/docker-compose-{{ ansible_system }}-{{ ansible_machine }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
     - name: Login to Docker Hub
-      community.docker.docker_login:
-        username: "{{ docker_user }}"
-        password: "{{ docker_pass }}"
+      shell: echo "{{ docker_registry_pass }}" | docker login -u "{{ docker_registry_user }}" --password-stdin
+      no_log: true
 
   tasks:
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+        owner: ec2-user
+        group: ec2-user
+
+    - name: Copy docker-compose.prod.yaml
+      copy:
+        src: ../../docker-compose.prod.yaml
+        dest: "{{ app_dir }}/docker-compose.prod.yaml"
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+
+    - name: Copy deployment script
+      copy:
+        src: ../scripts/ec2-deploy.sh
+        dest: "{{ app_dir }}/deploy.sh"
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+
+    - name: Copy systemd service
+      copy:
+        src: ../scripts/cafelove.service
+        dest: /etc/systemd/system/cafelove.service
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
     - name: Pull backend image with retry
-      community.docker.docker_image:
-        name: "{{ backend_image }}"
-        source: pull
+      shell: docker pull {{ backend_image }}
       retries: 3
       delay: 10
-      register: backend_pull_result
-      until: backend_pull_result is succeeded
+      register: backend_pull
+      until: backend_pull.rc == 0
 
     - name: Pull frontend image with retry
-      community.docker.docker_image:
-        name: "{{ frontend_image }}"
-        source: pull
+      shell: docker pull {{ frontend_image }}
       retries: 3
       delay: 10
-      register: frontend_pull_result
-      until: frontend_pull_result is succeeded
+      register: frontend_pull
+      until: frontend_pull.rc == 0
 
-    - name: Stop and remove backend container if exists
-      community.docker.docker_container:
-        name: "{{ backend_container_name }}"
-        state: absent
-        force_kill: yes
+    - name: Stop old containers
+      shell: cd {{ app_dir }} && docker-compose -f docker-compose.prod.yaml down
+      ignore_errors: yes
 
-    - name: Stop and remove frontend container if exists
-      community.docker.docker_container:
-        name: "{{ frontend_container_name }}"
-        state: absent
-        force_kill: yes
+    - name: Start new containers
+      shell: cd {{ app_dir }} && docker-compose -f docker-compose.prod.yaml up -d
+      become_user: ec2-user
 
-    - name: Run backend container
-      community.docker.docker_container:
-        name: "{{ backend_container_name }}"
-        image: "{{ backend_image }}"
-        state: started
-        restart_policy: always
-        published_ports:
-          - "5000:5000"
-
-    - name: Run frontend container
-      community.docker.docker_container:
-        name: "{{ frontend_container_name }}"
-        image: "{{ frontend_image }}"
-        state: started
-        restart_policy: always
-        published_ports:
-          - "80:5173"
-
-  post_tasks:
-    - name: Display deployment success message
-      debug:
-        msg:
-          - "========================================="
-          - "✓ CafeLove Deployment Completed!"
-          - "Backend: {{ backend_container_name }} running on port 5000"
-          - "Frontend: {{ frontend_container_name }} running on port 80"
-          - "========================================="
-
-    - name: Wait for backend container to be healthy
-      community.docker.docker_container:
-        name: "{{ backend_container_name }}"
-        state: started
-      register: backend_status
-
-    - name: Verify backend is responding
+    - name: Wait for backend to become healthy
       uri:
         url: "http://localhost:5000/api/test"
         method: GET
-        status_code: [200, 404, 500]
-      ignore_errors: yes
-      retries: 3
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 15
       delay: 5
-      register: backend_health
 
-    - name: Display backend health status
+    - name: Enable and start CafeLove service
+      systemd:
+        name: cafelove
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+  post_tasks:
+    - name: Get EC2 IP address
+      shell: hostname -I | awk '{print $1}'
+      register: ec2_ip
+
+    - name: Display deployment success
       debug:
-        msg: "Backend API responding: {{ backend_health.status | default('Unable to reach') }}"
+        msg:
+          - "========================================="
+          - "✅ CafeLove Deployed Successfully!"
+          - "========================================="
+          - "Frontend:  http://{{ ec2_ip.stdout }}"
+          - "Backend:   http://{{ ec2_ip.stdout }}:5000/api/test"
+          - "Status:    sudo systemctl status cafelove"
+          - "Logs:      sudo journalctl -u cafelove -f"
+          - "========================================="
+

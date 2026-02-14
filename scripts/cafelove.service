@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#############################################
+# SystemD Service Unit for CafeLove
+# Auto-starts containers on EC2 reboot
+# Install: sudo cp cafelove.service /etc/systemd/system/
+# Enable: sudo systemctl enable cafelove
+# Start: sudo systemctl start cafelove
+# Status: sudo systemctl status cafelove
+#############################################
+
+[Unit]
+Description=CafeLove Application
+Documentation=https://github.com/hima1222/DevOpsProject
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/opt/cafelove
+EnvironmentFile=/opt/cafelove/.env
+
+# Deploy and start containers
+ExecStart=/bin/bash /opt/cafelove/deploy.sh
+
+# Auto-restart on failure
+Restart=on-failure
+RestartSec=10
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+
+# Resource limits
+MemoryLimit=2G
+CPUQuota=80%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cafelove
+
+[Install]
+WantedBy=multi-user.target
