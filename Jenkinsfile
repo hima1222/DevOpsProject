@@ -18,16 +18,19 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CLIENT_TIMEOUT = '300'
-        COMPOSE_HTTP_TIMEOUT = '300'
+        DOCKER_CLIENT_TIMEOUT = '600'
+        COMPOSE_HTTP_TIMEOUT = '600'
         GIT_TERMINAL_PROMPT = '0'
         GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
+        // Increase heartbeat check interval for slow filesystems (fixes Jenkins restart issues)
+        ORG_JENKINSCI_PLUGINS_DURABLETASK_BOURNE_SHELL_SCRIPT_HEARTBEAT_CHECK_INTERVAL = '86400'
     }
 
     options {
-        timeout(time: 1, unit: 'HOURS')
+        timeout(time: 2, unit: 'HOURS')
         timestamps()
-        buildDiscarder(logRotator(numToKeepStr: '10'))
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+        disableConcurrentBuilds()
     }
 
     stages {
@@ -60,9 +63,24 @@ pipeline {
             agent any
             environment {
                 DOCKER_API_VERSION = "1.44"
+                DOCKER_BUILDKIT = '1'
+                COMPOSE_DOCKER_CLI_BUILD = '1'
             }
             steps {
-                sh 'docker-compose build'
+                sh '''
+                echo "═══════════════════════════════════════"
+                echo "🐳 Building Docker Images with BuildKit"
+                echo "═══════════════════════════════════════"
+                
+                # Clean up unused images to free space and improve build speed
+                docker image prune -af --filter "until=24h" || true
+                
+                # Build with progress output and caching
+                DOCKER_BUILDKIT=1 docker-compose build --progress=plain
+                
+                echo "✅ Docker images built successfully"
+                docker images | grep cafelove
+                '''
             }
         }
 
