@@ -77,7 +77,7 @@ pipeline {
             steps {
                 sh '''
                 echo "═══════════════════════════════════════"
-                echo "🐳 Building Docker Images with BuildKit"
+                echo "Building Docker Images with BuildKit"
                 echo "═══════════════════════════════════════"
                 
                 # Clean up unused images to free space and improve build speed
@@ -86,7 +86,7 @@ pipeline {
                 # Build with progress output and caching
                 DOCKER_BUILDKIT=1 docker-compose build --progress=plain
                 
-                echo "✅ Docker images built successfully"
+                echo "Docker images built successfully"
                 docker images | grep cafelove
                 '''
             }
@@ -120,13 +120,13 @@ pipeline {
                 script {
                     echo '=== Pushing backend image with exponential-backoff retry ==='
                     retryPush('hima1222/cafelove-backend:latest', 3)
-                    echo '✓ Backend push succeeded'
+                    echo 'Backend push succeeded'
                 }
 
                 script {
                     echo '=== Pushing frontend image with exponential-backoff retry ==='
                     retryPush('hima1222/cafelove-frontend:latest', 3)
-                    echo '✓ Frontend push succeeded'
+                    echo 'Frontend push succeeded'
                 }
             }
         }
@@ -134,9 +134,7 @@ pipeline {
         stage('Deploy with Ansible') {
             agent any
             steps {
-                echo '========================================='
-                echo '🚀 Deploying to EC2 via Ansible'
-                echo '========================================='
+                echo ' Deploying to EC2 via Ansible'
                 withCredentials([
                     usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
                     file(credentialsId: 'ec2-ssh-key', variable: 'EC2_SSH_KEY')
@@ -153,7 +151,7 @@ pipeline {
                       -vv
                     '''
                 }
-                echo '✅ Ansible deployment completed successfully'
+                echo 'Ansible deployment completed successfully'
             }
         }
 
@@ -162,14 +160,14 @@ pipeline {
     post {
         success {
             echo '\n========================================'
-            echo '✓ CI/CD Pipeline SUCCEEDED'
-            echo '✓ Changes deployed to EC2'
+            echo 'CI/CD Pipeline SUCCEEDED'
+            echo 'Changes deployed to EC2'
             echo '========================================'
         }
         failure {
             echo '\n========================================'
-            echo '✗ CI/CD Pipeline FAILED'
-            echo '✗ Check logs above for error details'
+            echo 'CI/CD Pipeline FAILED'
+            echo 'Check logs above for error details'
             echo '========================================'
         }
     }
