@@ -1,0 +1,28 @@
+- name: Deploy CafeLove App
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Pull frontend image
+      docker_image:
+        name: hima1222/cafelove-frontend
+        source: pull
+
+    - name: Pull backend image
+      docker_image:
+        name: hima1222/cafelove-backend
+        source: pull
+
+    - name: Stop existing containers
+      docker_container:
+        name: cafelove-frontend
+        state: absent
+
+    - name: Run frontend container
+      docker_container:
+        name: cafelove-frontend
+        image: hima1222/cafelove-frontend:latest
+        state: started
+        restart_policy: always
+        published_ports:
+          - "5173:5173"

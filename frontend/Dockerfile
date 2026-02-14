@@ -1,5 +1,5 @@
 # Stage 1: Development
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY . .
 EXPOSE 5173
 
 # Start Vite in dev mode and listen on all interfaces
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 
 

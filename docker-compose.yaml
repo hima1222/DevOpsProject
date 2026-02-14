@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     image: cafelove-frontend
     container_name: frontend_c
-    command: npm run dev -- --host 0.0.0.0
+    #command: npm run dev -- --host 0.0.0.0
     volumes:
       - ./frontend:/app
       - /app/node_modules
