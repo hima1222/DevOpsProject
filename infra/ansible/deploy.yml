@@ -3,26 +3,118 @@
   become: yes
 
   tasks:
-    - name: Pull frontend image
-      docker_image:
-        name: hima1222/cafelove-frontend
-        source: pull
+  vars:
+    backend_image: "hima1222/cafelove-backend:latest"
+    frontend_image: "hima1222/cafelove-frontend:latest"
+    backend_container_name: cafelove-backend
+    frontend_container_name: cafelove-frontend
 
+  pre_tasks:
+    - name: Ensure python is installed for docker modules (RedHat)
+      raw: test -e /usr/bin/python || (yum -y install python2 || apt-get -y update && apt-get -y install python-minimal)
+      changed_when: false
+
+    - name: Install docker on Amazon Linux / RHEL
+      block:
+        - name: Install required packages (yum)
+          yum:
+            name: ["yum-utils", "device-mapper-persistent-data", "lvm2"]
+            state: present
+            update_cache: yes
+          when: ansible_os_family == 'RedHat'
+
+        - name: Add docker repo and install docker-ce
+          shell: |
+            amazon-linux-extras install -y docker || true
+            yum install -y docker || true
+          when: ansible_os_family == 'RedHat'
+
+    - name: Install docker on Debian/Ubuntu
+      block:
+        - name: Install apt packages
+          apt:
+            name: ["apt-transport-https", "ca-certificates", "curl", "gnupg", "lsb-release"]
+            state: present
+            update_cache: yes
+          when: ansible_os_family == 'Debian'
+
+        - name: Add Docker GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+          when: ansible_os_family == 'Debian'
+
+        - name: Add Docker apt repository
+          apt_repository:
+            repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+            state: present
+          when: ansible_os_family == 'Debian'
+
+        - name: Install docker-ce
+          apt:
+            name: docker-ce
+            state: present
+            update_cache: yes
+          when: ansible_os_family == 'Debian'
+
+    - name: Ensure docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Login to Docker Hub
+      community.docker.docker_login:
+        username: "{{ docker_user }}"
+        password: "{{ docker_pass }}"
+
+  tasks:
     - name: Pull backend image
-      docker_image:
-        name: hima1222/cafelove-backend
+      community.docker.docker_image:
+        name: "{{ backend_image }}"
         source: pull
 
-    - name: Stop existing containers
-      docker_container:
-        name: cafelove-frontend
-        state: absent
+    - name: Pull frontend image
+      community.docker.docker_image:
+        name: "{{ frontend_image }}"
+        source: pull
 
-    - name: Run frontend container
-      docker_container:
-        name: cafelove-frontend
-        image: hima1222/cafelove-frontend:latest
+    - name: Stop and remove backend container if exists
+      community.docker.docker_container:
+        name: "{{ backend_container_name }}"
+        state: absent
+        force_kill: yes
+
+    - name: Stop and remove frontend container if exists
+      community.docker.docker_container:
+        name: "{{ frontend_container_name }}"
+        state: absent
+        force_kill: yes
+
+    - name: Run backend container
+      community.docker.docker_container:
+        name: "{{ backend_container_name }}"
+        image: "{{ backend_image }}"
         state: started
         restart_policy: always
         published_ports:
-          - "5173:5173"
+          - "5000:5000"
+
+    - name: Run frontend container
+      community.docker.docker_container:
+        name: "{{ frontend_container_name }}"
+        image: "{{ frontend_image }}"
+        state: started
+        restart_policy: always
+        published_ports:
+          - "80:5173"
+
+  post_tasks:
+    - name: Show running containers
+      community.docker.docker_container_info:
+        name: "{{ frontend_container_name }}"
+      register: frontend_info
+
+    - name: Debug frontend container
+      debug:
+        var: frontend_info

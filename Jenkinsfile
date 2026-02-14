@@ -68,10 +68,22 @@ pipeline {
         }
 
         stage('Deploy with Ansible') {
+            agent any
             steps {
-                sh 'ansible-playbook -i inventory.ini deploy.yml'
+                withCredentials([
+                    usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
+                    file(credentialsId: 'ec2-ssh-key', variable: 'EC2_SSH_KEY')
+                ]) {
+                    sh '''
+                    chmod 600 "$EC2_SSH_KEY"
+                    ansible-playbook -i infra/ansible/inventory.ini infra/ansible/deploy.yml \
+                      --private-key "$EC2_SSH_KEY" \
+                      -e "docker_user=$DOCKER_USER docker_pass=$DOCKER_PASS"
+                    '''
+                }
             }
         }
+
 
 
     }
