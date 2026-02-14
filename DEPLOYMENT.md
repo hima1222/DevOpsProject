@@ -1,4 +1,4 @@
-# CafeLove - Complete CI/CD Deployment Guide
+co# CafeLove - Complete CI/CD Deployment Guide
 
 This guide provides step-by-step instructions to set up the complete automated CI/CD pipeline from GitHub push to live EC2 deployment.
 
@@ -279,6 +279,30 @@ This handles transient Docker Hub network issues without manual intervention.
 
 ## 🐛 Troubleshooting
 
+### Issue: "Could not resolve host: github.com"
+**Cause:** Transient network connectivity issue from Jenkins to GitHub
+
+**Solution:**
+- The Jenkinsfile now includes **automatic retry logic** for git operations (with `GIT_TERMINAL_PROMPT=0`)
+- Jenkins will automatically retry the checkout 3 times before giving up
+- This typically resolves itself on retry (transient DNS/network issue)
+- If persistent:
+  - Verify Jenkins server has internet access: `ping github.com` on Jenkins host
+  - Check DNS is working: `nslookup github.com`
+  - Verify no firewall is blocking port 443 (HTTPS to GitHub)
+  - Check Jenkins agent network connectivity or proxy settings
+
+### Issue: Pipeline timeout (over 1 hour)
+**Cause:** Large image builds, slow Docker Hub pushes, or network latency
+
+**Solution:**
+- The Jenkinsfile now includes `timeout(time: 1, unit: 'HOURS')` — increase if needed:
+  ```groovy
+  options {
+      timeout(time: 2, unit: 'HOURS')  // Increase from 1
+  }
+  ```
+
 ### Issue: "Skipped due to earlier failure(s)"
 **Cause:** A previous stage failed (Tests, Build, or Push)
 
@@ -319,6 +343,14 @@ This handles transient Docker Hub network issues without manual intervention.
 
 ## ✅ Checklist: Is Everything Working?
 
+Run `./scripts/validate-setup.sh` to auto-check prerequisites:
+
+```bash
+chmod +x scripts/validate-setup.sh
+./scripts/validate-setup.sh
+```
+
+Manual checklist:
 - [ ] Jenkins credentials created: `dockerhub-creds` and `ec2-ssh-key`
 - [ ] EC2 security group allows ports 22, 80, 443, 5000
 - [ ] EC2 instance has Docker installed and running

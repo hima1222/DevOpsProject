@@ -20,6 +20,14 @@ pipeline {
     environment {
         DOCKER_CLIENT_TIMEOUT = '300'
         COMPOSE_HTTP_TIMEOUT = '300'
+        GIT_TERMINAL_PROMPT = '0'
+        GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
     stages {
