@@ -5,7 +5,7 @@ import "./Navbar.css";
 const AuthNavbar = () => {
   return (
     <nav className="navbar auth-navbar">
-      <div className="logo">CafeLove</div>
+      <div className="logo">Himara 5309</div>
       <ul className="nav-links">
         <li><Link to="/about">About</Link></li>
         <li><Link to="/contact">Contact Us</Link></li>

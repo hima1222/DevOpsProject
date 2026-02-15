@@ -77,7 +77,7 @@ pipeline {
             steps {
                 sh '''
                 echo "═══════════════════════════════════════"
-                echo "🐳 Building Docker Images with BuildKit"
+                echo "Building Docker Images with BuildKit"
                 echo "═══════════════════════════════════════"
                 
                 # Clean up unused images to free space
@@ -89,21 +89,21 @@ pipeline {
                     max_attempts=3
                     
                     while [ $attempt -le $max_attempts ]; do
-                        echo "🔨 Build attempt $attempt of $max_attempts..."
+                        echo " Build attempt $attempt of $max_attempts..."
                         
                         if DOCKER_BUILDKIT=1 docker-compose build --progress=plain; then
-                            echo "✅ Docker images built successfully"
+                            echo "Docker images built successfully"
                             docker images | grep cafelove
                             return 0
                         fi
                         
                         if [ $attempt -eq $max_attempts ]; then
-                            echo "❌ Build failed after $max_attempts attempts"
+                            echo " Build failed after $max_attempts attempts"
                             return 1
                         fi
                         
                         wait_time=$((2 ** (attempt - 1)))
-                        echo "⚠️  Build failed. Waiting ${wait_time}s before retry..."
+                        echo "  Build failed. Waiting ${wait_time}s before retry..."
                         sleep "$wait_time"
                         attempt=$((attempt + 1))
                     done
